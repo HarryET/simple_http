@@ -1,12 +1,12 @@
 # transparent_http
 
-[![Package Version](https://img.shields.io/hexpm/v/simple_http)](https://hex.pm/packages/simple_http)
-[![Hex Docs](https://img.shields.io/badge/hex-docs-ffaff3)](https://hexdocs.pm/simple_http/)
+[![Package Version](https://img.shields.io/hexpm/v/transparent_http)](https://hex.pm/packages/transparent_http)
+[![Hex Docs](https://img.shields.io/badge/hex-docs-ffaff3)](https://hexdocs.pm/transparent_http/)
 
 Simple HTTP Client for low level use cases
 
 ## Quick start
-1. Add simple_http and a http client which uses `gleam_http` types
+1. Add `transparent_http` and a http client which uses `gleam_http` types
 ```
 gleam add transparent_http gleam_httpc
 ```
