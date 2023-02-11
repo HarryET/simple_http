@@ -3,7 +3,7 @@ import gleam/http/request.{Request}
 import gleam/http/response.{Response}
 import gleam/option.{None, Option}
 
-pub type TransparentHttpBuilder(body) {
+pub type TransparentHttpBuilder(body, error) {
   TransparentHttpBuilder(
     /// Function that is applied to the `base_request` before being passed
     /// to the `req` function
@@ -13,22 +13,22 @@ pub type TransparentHttpBuilder(body) {
     /// Initial value for request body, e.g. `""`
     initial_req_body: body,
     /// Function that sends a request and gets a response
-    sender: fn(Request(body)) -> Response(body),
+    sender: fn(Request(body)) -> Result(Response(body), error),
   )
 }
 
-pub type TransparentHttp(body) {
+pub type TransparentHttp(body, error) {
   TransparentHttp(
     setup_request: fn(Request(body)) -> Request(body),
     base_request: Request(body),
-    sender: fn(Request(body)) -> Response(body),
+    sender: fn(Request(body)) -> Result(Response(body), error),
   )
 }
 
 pub fn new_builder(
-  sender: fn(Request(body)) -> Response(body),
+  sender: fn(Request(body)) -> Result(Response(body), error),
   initial_request_body: body,
-) -> TransparentHttpBuilder(body) {
+) -> TransparentHttpBuilder(body, error) {
   TransparentHttpBuilder(
     setup_request: None,
     base_request: None,
@@ -39,15 +39,17 @@ pub fn new_builder(
 
 /// Creates a default TransparentHttp client
 pub fn default(
-  sender: fn(Request(body)) -> Response(body),
+  sender: fn(Request(body)) -> Result(Response(body), error),
   initial_request_body: body,
-) -> TransparentHttp(body) {
+) -> TransparentHttp(body, error) {
   new(new_builder(sender, initial_request_body))
 }
 
 /// Creates a new TransparentHttp client, taking overrides from the
 /// TransparentHttpBuilder
-pub fn new(builder: TransparentHttpBuilder(body)) -> TransparentHttp(body) {
+pub fn new(
+  builder: TransparentHttpBuilder(body, error),
+) -> TransparentHttp(body, error) {
   TransparentHttp(
     setup_request: option.unwrap(builder.setup_request, or: fn(r) { r }),
     base_request: option.unwrap(
@@ -73,9 +75,9 @@ pub fn new(builder: TransparentHttpBuilder(body)) -> TransparentHttp(body) {
 /// 3. Pass to the `request` parameter
 /// 4. Return the reponse from `sender`
 pub fn req(
-  client: TransparentHttp(body),
+  client: TransparentHttp(body, error),
   request: fn(Request(body)) -> Request(body),
-) {
+) -> Result(Response(body), error) {
   client.base_request
   |> client.setup_request
   |> request
