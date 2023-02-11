@@ -3,8 +3,8 @@ import gleam/http/request.{Request}
 import gleam/http/response.{Response}
 import gleam/option.{None, Option}
 
-pub type SimpleHttpBuilder(body) {
-  SimpleHttpBuilder(
+pub type TransparentHttpBuilder(body) {
+  TransparentHttpBuilder(
     /// Function that is applied to the `base_request` before being passed
     /// to the `req` function
     setup_request: Option(fn(Request(body)) -> Request(body)),
@@ -17,8 +17,8 @@ pub type SimpleHttpBuilder(body) {
   )
 }
 
-pub type SimpleHttp(body) {
-  SimpleHttp(
+pub type TransparentHttp(body) {
+  TransparentHttp(
     setup_request: fn(Request(body)) -> Request(body),
     base_request: Request(body),
     sender: fn(Request(body)) -> Response(body),
@@ -28,8 +28,8 @@ pub type SimpleHttp(body) {
 pub fn new_builder(
   sender: fn(Request(body)) -> Response(body),
   initial_request_body: body,
-) -> SimpleHttpBuilder(body) {
-  SimpleHttpBuilder(
+) -> TransparentHttpBuilder(body) {
+  TransparentHttpBuilder(
     setup_request: None,
     base_request: None,
     sender: sender,
@@ -37,18 +37,18 @@ pub fn new_builder(
   )
 }
 
-/// Creates a default SimpleHttp client
+/// Creates a default TransparentHttp client
 pub fn default(
   sender: fn(Request(body)) -> Response(body),
   initial_request_body: body,
-) -> SimpleHttp(body) {
+) -> TransparentHttp(body) {
   new(new_builder(sender, initial_request_body))
 }
 
-/// Creates a new SimpleHttp client, taking overrides from the
-/// SimpleHttpBuilder
-pub fn new(builder: SimpleHttpBuilder(body)) -> SimpleHttp(body) {
-  SimpleHttp(
+/// Creates a new TransparentHttp client, taking overrides from the
+/// TransparentHttpBuilder
+pub fn new(builder: TransparentHttpBuilder(body)) -> TransparentHttp(body) {
+  TransparentHttp(
     setup_request: option.unwrap(builder.setup_request, or: fn(r) { r }),
     base_request: option.unwrap(
       builder.base_request,
@@ -73,7 +73,7 @@ pub fn new(builder: SimpleHttpBuilder(body)) -> SimpleHttp(body) {
 /// 3. Pass to the `request` parameter
 /// 4. Return the reponse from `sender`
 pub fn req(
-  client: SimpleHttp(body),
+  client: TransparentHttp(body),
   request: fn(Request(body)) -> Request(body),
 ) {
   client.base_request
