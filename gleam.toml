@@ -1,11 +1,11 @@
-name = "simple_http"
+name = "transparent_http"
 version = "0.1.0"
 description = "Simple HTTP client to power API wrappers written in Gleam"
 
 licences = ["Apache-2.0"]
-repository = { type = "github", user = "HarryET", repo = "simple_http" }
+repository = { type = "github", user = "HarryET", repo = "transparent_http" }
 links = [
-    { title = "Website", href= "https://hexdocs.pm/simple_http" },
+    { title = "Website", href= "https://hexdocs.pm/transparent_http" },
     { title = "Sponsor", href = "https://github.com/sponsors/HarryET" }
 ]
 
