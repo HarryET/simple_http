@@ -1,36 +1,34 @@
-import gleam/io
 import gleam/http.{Get}
 import gleam/http/request.{Request}
 import gleam/http/response.{Response}
 import gleam/option.{None, Option}
-import gleam/dynamic.{Dynamic}
 
-pub type SimpleHttpBuilder(req_body, res_body) {
+pub type SimpleHttpBuilder(body) {
   SimpleHttpBuilder(
     /// Function that is applied to the `base_request` before being passed
     /// to the `req` function
-    setup_request: Option(fn(Request(req_body)) -> Request(req_body)),
+    setup_request: Option(fn(Request(body)) -> Request(body)),
     /// Base request for contant values e.g. auth headers
-    base_request: Option(Request(req_body)),
+    base_request: Option(Request(body)),
     /// Initial value for request body, e.g. `""`
-    initial_req_body: req_body,
+    initial_req_body: body,
     /// Function that sends a request and gets a response
-    sender: fn(Request(req_body)) -> Response(res_body),
+    sender: fn(Request(body)) -> Response(body),
   )
 }
 
-pub type SimpleHttp(req_body, res_body) {
+pub type SimpleHttp(body) {
   SimpleHttp(
-    setup_request: fn(Request(req_body)) -> Request(res_body),
-    base_request: Request(req_body),
-    sender: fn(Request(req_body)) -> Response(res_body),
+    setup_request: fn(Request(body)) -> Request(body),
+    base_request: Request(body),
+    sender: fn(Request(body)) -> Response(body),
   )
 }
 
 pub fn new_builder(
-  sender: fn(Request(req_body)) -> Response(res_body),
-  initial_request_body: req_body,
-) -> SimpleHttpBuilder(req_body, res_body) {
+  sender: fn(Request(body)) -> Response(body),
+  initial_request_body: body,
+) -> SimpleHttpBuilder(body) {
   SimpleHttpBuilder(
     setup_request: None,
     base_request: None,
@@ -41,17 +39,15 @@ pub fn new_builder(
 
 /// Creates a default SimpleHttp client
 pub fn default(
-  sender: fn(Request(req_body)) -> Response(res_body),
-  initial_request_body: req_body,
-) -> SimpleHttp(req_body, res_body) {
+  sender: fn(Request(body)) -> Response(body),
+  initial_request_body: body,
+) -> SimpleHttp(body) {
   new(new_builder(sender, initial_request_body))
 }
 
 /// Creates a new SimpleHttp client, taking overrides from the
 /// SimpleHttpBuilder
-pub fn new(
-  builder: SimpleHttpBuilder(req_body, res_body),
-) -> SimpleHttp(req_body, res_body) {
+pub fn new(builder: SimpleHttpBuilder(body)) -> SimpleHttp(body) {
   SimpleHttp(
     setup_request: option.unwrap(builder.setup_request, or: fn(r) { r }),
     base_request: option.unwrap(
@@ -77,8 +73,8 @@ pub fn new(
 /// 3. Pass to the `request` parameter
 /// 4. Return the reponse from `sender`
 pub fn req(
-  client: SimpleHttp(req_body, res_body),
-  request: fn(Request(req_body)) -> Request(res_body),
+  client: SimpleHttp(body),
+  request: fn(Request(body)) -> Request(body),
 ) {
   client.base_request
   |> client.setup_request
